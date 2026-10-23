@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../packages/engine/src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MemoryKind {
+  FACT
+  PREFERENCE
+  PRINCIPLE
+  GOAL
+  KNOWLEDGE
+}
+
+enum MemoryScope {
+  PERSONAL
+  PROJECT
+  DEVICE
+}
+
+enum MemoryCertainty {
+  EXPLICIT
+  INFERRED
+}
+
+enum MemoryStatus {
+  CANDIDATE
+  ACTIVE
+  SUPERSEDED
+  REJECTED
+  DELETED
+}
+
+enum MemorySource {
+  USER_STATEMENT
+  OBSERVED_RESULT
+  IMPORTED
+}
+
+enum MemorySensitivity {
+  PUBLIC
+  INTERNAL
+  SENSITIVE
+  RESTRICTED
+}
+
+enum ChangeOperation {
+  CREATE
+  REVISE
+  REJECT
+  FORGET
+}
+
+enum ChangeStatus {
+  PENDING
+  APPLIED
+  CONFLICT
+  FAILED
+}
+
+model Profile {
+  userId          String   @id @db.Uuid @map("user_id")
+  displayName     String   @map("display_name")
+  language        String   @default("es")
+  timezone        String
+  contextRevision Int      @default(1) @map("context_revision")
+  currentSummary  String?  @map("current_summary")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  memories PersonalMemory[]
+  changes  MemoryChange[]
+
+  @@map("profiles")
+}
+
+model PersonalMemory {
+  id                String          @id @default(uuid()) @db.Uuid
+  userId            String          @db.Uuid @map("user_id")
+  kind              MemoryKind
+  topicKey          String          @map("topic_key")
+  scope             MemoryScope
+  scopeRef          String?         @map("scope_ref")
+  subject           String
+  currentRevisionId String?         @unique @db.Uuid @map("current_revision_id")
+  deletedAt         DateTime?       @map("deleted_at")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  profile         Profile          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  currentRevision MemoryRevision?  @relation("CurrentRevision", fields: [currentRevisionId], references: [id], onDelete: SetNull)
+  revisions       MemoryRevision[] @relation("MemoryRevisions")
+
+  @@unique([userId, topicKey, scope, scopeRef])
+  @@index([userId, scope, scopeRef])
+  @@map("personal_memories")
+}
+
+model MemoryRevision {
+  id           String            @id @default(uuid()) @db.Uuid
+  memoryId     String            @db.Uuid @map("memory_id")
+  revision     Int
+  content      String
+  certainty    MemoryCertainty
+  status       MemoryStatus
+  source       MemorySource
+  sensitivity  MemorySensitivity @default(INTERNAL)
+  exposure     String[]          @default([])
+  validFrom    DateTime          @default(now()) @map("valid_from")
+  validTo      DateTime?         @map("valid_to")
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  memory       PersonalMemory   @relation("MemoryRevisions", fields: [memoryId], references: [id], onDelete: Cascade)
+  currentFor   PersonalMemory?  @relation("CurrentRevision")
+  evidence     MemoryEvidence[]
+
+  @@unique([memoryId, revision])
+  @@index([memoryId, status])
+  @@map("memory_revisions")
+}
+
+model MemoryEvidence {
+  id           String   @id @default(uuid()) @db.Uuid
+  revisionId   String   @db.Uuid @map("revision_id")
+  sourceType   String   @map("source_type")
+  sourceRef    String   @map("source_ref")
+  excerpt      String?
+  contentHash  String?  @map("content_hash")
+  observedAt   DateTime @default(now()) @map("observed_at")
+
+  revision MemoryRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+
+  @@index([revisionId])
+  @@map("memory_evidence")
+}
+
+model MemoryChange {
+  changeId         String          @id @db.Uuid @map("change_id")
+  userId           String          @db.Uuid @map("user_id")
+  runId            String?         @db.Uuid @map("run_id")
+  operation        ChangeOperation
+  memoryId         String?         @db.Uuid @map("memory_id")
+  expectedRevision Int?            @map("expected_revision")
+  status           ChangeStatus
+  result           Json?
+  createdAt        DateTime        @default(now()) @map("created_at")
+  appliedAt        DateTime?       @map("applied_at")
+
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("memory_changes")
+}
+
+model Device {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid @map("user_id")
+  canonicalKey String   @map("canonical_key")
+  displayName  String   @map("display_name")
+  capabilities Json
+  lastSeenAt   DateTime? @map("last_seen_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, canonicalKey])
+  @@map("devices")
+}
+
+model Project {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid @map("user_id")
+  canonicalKey String   @map("canonical_key")
+  displayName  String   @map("display_name")
+  remoteUrl    String?  @map("remote_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, canonicalKey])
+  @@map("projects")
+}

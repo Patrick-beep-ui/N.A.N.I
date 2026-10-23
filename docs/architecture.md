@@ -2,7 +2,7 @@
 
 ## Alcance de la primera versión
 
-La primera versión corre localmente, recibe texto y utiliza OpenCode como runtime agéntico. Los estándares de este repositorio son la fuente explícita y versionada; Engram conserva continuidad técnica por proyecto. Supabase se incorpora después de validar el ciclo de memoria.
+La primera versión corre localmente y completa el ciclo central: Supabase aporta memoria personal desde el inicio, OpenCode ejecuta tareas con el modelo configurado, y Engram conserva continuidad operativa por proyecto o dispositivo. Los estándares del repositorio siguen siendo una fuente explícita y versionada.
 
 ```text
 Usuario
@@ -12,11 +12,11 @@ Interfaz de texto
   |
   v
 Servicio N.A.N.I.
-  |-- ContextService ------> knowledge/ + standards/ + examples/
+  |-- ContextService ------> Supabase + knowledge/ + standards/ + examples/
   |-- AgentRuntimeInterface -> OpenCode
-  |                              |-- Engram
   |                              `-- herramientas locales autorizadas
-  `-- MemoryRepositoryInterface -> futuro: Supabase
+  |-- OperationalMemoryPort -> Engram
+  `-- PersonalMemoryPort ----> Supabase
 ```
 
 ## Componentes y límites
@@ -37,9 +37,13 @@ Clasifica la tarea, selecciona estándares y ejemplos pertinentes, recupera memo
 
 Representa sesiones agénticas, herramientas, eventos y cancelación. `OpenCodeRuntime` será el primer adaptador.
 
-### `MemoryRepositoryInterface`
+### `PersonalMemoryPort`
 
-Permite buscar, proponer, confirmar, reemplazar y olvidar recuerdos. Engram cubre inicialmente la continuidad técnica; Supabase será el almacén compartido para perfil, documentos, tareas y dispositivos.
+Permite cargar el bootstrap y, en las siguientes entregas, buscar, revisar, reemplazar y olvidar conocimiento personal en Supabase.
+
+### `OperationalMemoryPort`
+
+Consulta y registra en Engram decisiones, acciones, resultados y aprendizaje operativo dentro de un ámbito canónico. No es la fuente principal de preferencias personales.
 
 ### `ToolRegistry`
 
@@ -47,14 +51,14 @@ Registra herramientas, esquema de entrada, nivel de riesgo, permisos y requisito
 
 ## Flujo de una solicitud
 
-1. Identificar tarea, proyecto y riesgo.
-2. Elegir fuentes de contexto relevantes.
-3. Recuperar decisiones locales y ejemplos.
-4. Construir un paquete de contexto trazable.
-5. Ejecutar la tarea mediante OpenCode.
-6. Validar el resultado contra el checklist.
-7. Mostrar resultado, fuentes y acciones realizadas.
-8. Proponer recuerdos nuevos; persistir solo según la política.
+1. Crear o reanudar una sesión y cargar un snapshot personal versionado desde Supabase.
+2. Identificar tarea, proyecto, dispositivo y riesgo.
+3. Recuperar decisiones operativas pertinentes desde Engram y referencias versionadas.
+4. Construir un paquete de contexto trazable y limitado.
+5. Ejecutar un único ciclo agéntico mediante OpenCode.
+6. Verificar el resultado y registrar la observación operativa en Engram.
+7. Validar candidatos de aprendizaje y aplicar cambios personales en Supabase.
+8. Mostrar por separado ejecución, memoria operativa y sincronización personal.
 
 ## Decisiones iniciales
 
@@ -62,8 +66,16 @@ Registra herramientas, esquema de entrada, nivel de riesgo, permisos y requisito
 - Separar modelo de inferencia y runtime agéntico.
 - Mantener OpenCode y las acciones locales en el dispositivo.
 - No exponer directamente el servidor de OpenCode a Internet.
-- Posponer Supabase hasta comprobar aplicación, corrección y continuidad con archivos y Engram.
+- Supabase forma parte del MVP y se consulta al iniciar la sesión; las escrituras ocurren solo ante cambios personales relevantes.
 - Posponer voz; usar dictado del sistema durante la validación inicial.
+
+## Estado implementado
+
+- Monorepo con web, worker, contratos y engine compartida.
+- Esquema Prisma para perfiles, memorias, revisiones, evidencia, cambios, dispositivos y proyectos.
+- `PrismaPersonalMemoryRepository`, `ContextService` y `SessionService` para bootstrap real.
+- `POST /api/v1/sessions`, health check e interfaz mínima con estado de fuente.
+- Puertos definidos para OpenCode y Engram; sus adaptadores son el siguiente tramo.
 
 ## Evolución prevista
 

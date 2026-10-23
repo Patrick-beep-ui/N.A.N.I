@@ -8,6 +8,8 @@ node_modules/
 dist/
 build/
 coverage/
+.next/
+*.tsbuildinfo
 
 # Local state and databases
 *.db
@@ -22,4 +24,8 @@ coverage/
 Thumbs.db
 .idea/
 .vscode/
+
+# Generated and temporary artifacts
+packages/engine/src/generated/prisma/
+tmp/
 
