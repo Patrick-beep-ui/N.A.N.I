@@ -26,6 +26,6 @@ Thumbs.db
 .vscode/
 
 # Generated and temporary artifacts
-packages/engine/src/generated/prisma/
+src/generated/prisma/
 tmp/
 

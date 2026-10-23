@@ -1,14 +1,12 @@
-packages:
-  - "apps/*"
-  - "packages/*"
-
+# pnpm 11 stores install policies here. There is only ONE package (the root).
+packages: []
 allowBuilds:
   '@prisma/engines': true
-  esbuild: true
   prisma: true
+  esbuild: true
   sharp: true
-
 minimumReleaseAgeExclude:
+  - next@16.4.3
   - '@next/env@16.4.3'
   - '@next/swc-darwin-arm64@16.4.3'
   - '@next/swc-darwin-x64@16.4.3'
@@ -18,5 +16,3 @@ minimumReleaseAgeExclude:
   - '@next/swc-linux-x64-musl@16.4.3'
   - '@next/swc-win32-arm64-msvc@16.4.3'
   - '@next/swc-win32-x64-msvc@16.4.3'
-  - next@16.4.3
-
