@@ -1,72 +1,56 @@
 # N.A.N.I.
 
-N.A.N.I. es una engine que funciona como asistente virtual y segundo cerebro. Combina memoria personal en Supabase, memoria operativa en Engram, ejecución agéntica mediante OpenCode y razonamiento con el modelo configurado inicialmente como Big Pickle.
+Una sola aplicación Next.js + TypeScript + Prisma. Supabase conserva el conocimiento personal; OpenCode ejecuta las tareas con Big Pickle; Engram conserva el contexto operativo local.
 
-Esta primera versión es intencionalmente pequeña. Su objetivo es demostrar un ciclo completo sobre un proyecto real:
+## Arranque
 
-1. Crear una sesión y cargar un snapshot personal versionado desde Supabase.
-2. Recibir una tarea y recuperar contexto operativo desde Engram.
-3. Ejecutar mediante OpenCode con el modelo y herramientas autorizadas.
-4. Registrar acciones y resultados en la memoria operativa.
-5. Detectar aprendizaje personal y actualizar Supabase con evidencia y alcance.
-
-## Estructura
-
-```text
-.
-├── apps/
-│   ├── web/                 # Next.js: UI y API local
-│   └── worker/              # Proceso persistente para runs y sincronización
-├── packages/
-│   ├── contracts/           # Esquemas y tipos compartidos
-│   └── engine/              # Servicios, puertos y adaptadores
-├── prisma/                  # Modelo de memoria personal
-├── AGENTS.md
-├── knowledge/
-│   ├── profile.md
-│   ├── working-style.md
-│   └── current-context.md
-├── standards/
-│   ├── ai-architecture.md
-│   ├── backend-architecture.md
-│   ├── frontend-and-design.md
-│   └── quality-checklist.md
-├── examples/
-│   └── README.md
-└── docs/
-    ├── architecture.md
-    ├── memory-policy.md
-    └── roadmap.md
-```
-
-## Estado actual
-
-La primera entrega implementa la composición básica y el arranque de sesión con un bootstrap real de PostgreSQL/Supabase. Los puertos para OpenCode y Engram ya están definidos, pero sus adaptadores todavía no están conectados.
-
-## Ejecutar localmente
-
-Requisitos: Node.js 24+, pnpm 11+ y un proyecto de Supabase.
+Node.js 24+ y pnpm 11.3.0. Desde esta misma raíz:
 
 ```powershell
 Copy-Item .env.example .env
 pnpm install
-pnpm prisma:generate
-pnpm db:push
 pnpm dev
 ```
 
-Completá primero `DATABASE_URL`, `DIRECT_URL` y `NANI_OWNER_USER_ID`. La guía detallada está en [docs/setup.md](docs/setup.md).
+Completá `DATABASE_URL` antes de iniciar una sesión. No hay que copiar `.env` a otra carpeta. `NANI_OWNER_USER_ID` es opcional si hay un único perfil en la DB. Las tablas ya están creadas en el proyecto existente: no ejecutar reset ni db push.
 
-Antes de usar información personal sensible con un modelo gratuito, revisá sus condiciones de tratamiento de datos. Los documentos de este repositorio deben contener solo lo que estés dispuesto a enviar al modelo configurado.
+Para conversar y ejecutar tareas, mantené estos servicios locales abiertos en otras terminales:
+
+```powershell
+engram serve
+opencode serve --hostname 127.0.0.1 --port 4096
+```
+
+Big Pickle debe estar disponible en tu instalación de OpenCode. El modelo inicial es `opencode/big-pickle`; no se cambia automáticamente por otro. Abrí http://127.0.0.1:3000, iniciá una sesión, elegí el proyecto y enviá una tarea. Las acciones que requieren permiso se autorizan una vez desde el chat. Podés cancelar la ejecución.
+
+La carpeta operativa se configura con `NANI_WORKING_DIRECTORY`; vacía usa la raíz de N.A.N.I. Cambiarla requiere reiniciar el servidor e iniciar una sesión nueva. Es una carpeta de trabajo, no un sandbox del sistema operativo.
+
+## Estructura
+
+- `src/app`: interfaz y endpoints de Next.js.
+- `src/services`: sesión, memoria y coordinación del chat.
+- `src/integrations`: clientes reales de OpenCode y Engram.
+- `src/lib`: configuración, cliente Prisma, tipos y acceso local.
+- `prisma`: esquema existente; no se alteraron las tablas ni los datos.
+
+Existe un solo `package.json`, una sola instalación y un solo proceso de N.A.N.I. `pnpm-workspace.yaml` conserva únicamente las políticas de instalación de pnpm 11 con `packages: []`; no declara subproyectos ni paquetes compartidos.
+
+## Qué está conectado
+
+- Bootstrap real desde Supabase con selección de proyecto/dispositivo y vigencia.
+- Detección del único propietario local cuando no se proporciona UUID.
+- Chat con sesiones de OpenCode por SDK, modelo explícito, permisos y cancelación.
+- Consulta de Engram antes de cada turno y registro del resultado reportado por OpenCode.
+- Estado diferenciado cuando una tarea termina pero Engram no confirma el registro.
+
+El aprendizaje personal automático que escribe nuevos criterios en Supabase sigue pendiente. No se afirma que una conversación haya modificado el segundo cerebro. Las sesiones de la UI viven en memoria: un reinicio requiere iniciarlas de nuevo; el historial de OpenCode y Engram sigue en sus servicios.
 
 ## Verificación
 
 ```powershell
 pnpm check
 pnpm build
+pnpm start
 ```
 
-## Próximo hito
-
-Implementar `OpenCodeRuntime` y `EngramAdapter`, persistir runs/eventos locales y completar el primer recorrido real descrito en [docs/roadmap.md](docs/roadmap.md).
-
+`dev`, `build` y `check` generan el cliente Prisma automáticamente. Los servidores dev y producción escuchan en loopback. Ver [docs/setup.md](docs/setup.md) para configuración y límites de esta entrega.
