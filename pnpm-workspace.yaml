@@ -5,6 +5,7 @@ allowBuilds:
   prisma: true
   esbuild: true
   sharp: true
+  msgpackr-extract: false
 minimumReleaseAgeExclude:
   - next@16.4.3
   - '@next/env@16.4.3'

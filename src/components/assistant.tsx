@@ -3,6 +3,16 @@ import { useEffect, useState } from "react";
 import type { ChatResult, Permission, SessionView } from "@/lib/contracts";
 
 type Entry = { role: "user" | "assistant"; text: string };
+type Proposal = {
+  changeId: string;
+  proposal: {
+    subject: string;
+    content: string;
+    quote: string;
+    scope: string;
+    model: string;
+  };
+};
 export function Assistant() {
   const [project, setProject] = useState("n.a.n.i");
   const [session, setSession] = useState<SessionView | null>(null);
@@ -16,7 +26,56 @@ export function Assistant() {
   const [starting, setStarting] = useState(false);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [tools, setTools] = useState<ChatResult["tools"]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [deciding, setDeciding] = useState(false);
   const projectChanged = !!session && project.trim() !== session.project;
+
+  useEffect(() => {
+    if (!session || busy) return;
+    let active = true;
+    fetch(`/api/v1/sessions/${session.id}/memories`, { cache: "no-store" })
+      .then(async (r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((data) => {
+        if (active) setProposals(data);
+      })
+      .catch(() => {
+        if (active)
+          setError("No se pudieron consultar las propuestas de memoria.");
+      });
+    return () => {
+      active = false;
+    };
+  }, [session, busy]);
+
+  async function decide(changeId: string, accept: boolean) {
+    if (!session) return;
+    setDeciding(true);
+    try {
+      const r = await fetch(`/api/v1/sessions/${session.id}/memories`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ changeId, accept }),
+      });
+      const result = await r.json();
+      if (!r.ok)
+        throw new Error(
+          result.error?.message || "No se pudo resolver la propuesta.",
+        );
+      setProposals((prev) => prev.filter((p) => p.changeId !== changeId));
+      setStatus(
+        accept
+          ? `Memoria activa: ${result.memoryId} · revisión ${result.revision}.`
+          : "Propuesta rechazada.",
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falló la confirmación.");
+    } finally {
+      setDeciding(false);
+    }
+  }
 
   useEffect(() => {
     if (!busy || !session) return;
@@ -53,6 +112,7 @@ export function Assistant() {
       setSession(body);
       setEntries([]);
       setTools([]);
+      setProposals([]);
       setStatus(
         "Contexto de Supabase cargado. Podés conversar o encargar una tarea.",
       );
@@ -181,7 +241,7 @@ export function Assistant() {
             Proyecto activo: {session.project}
             <br />
             {session.context.displayName} · {session.context.memories.length}{" "}
-            memorias · revisión {session.context.revision}
+            recuerdos iniciales · revisión {session.context.revision}
             <br />
             {session.model}
             <br />
@@ -242,6 +302,35 @@ export function Assistant() {
             </ul>
           </details>
         )}
+        {proposals.map((p) => (
+          <div className="permission" key={p.changeId}>
+            <strong>Aprendizaje pendiente: {p.proposal.subject}</strong>
+            <p>{p.proposal.content}</p>
+            <p>
+              Fuente: «{p.proposal.quote}» · alcance {p.proposal.scope}
+            </p>
+            <small>
+              Confirmar guarda este contenido como memoria activa y autoriza su
+              uso por {p.proposal.model}. No confirmés datos sensibles ni
+              secretos.
+            </small>
+            <p>
+              <button
+                disabled={busy || deciding}
+                onClick={() => decide(p.changeId, true)}
+              >
+                Confirmar recuerdo
+              </button>{" "}
+              <button
+                className="secondary"
+                disabled={busy || deciding}
+                onClick={() => decide(p.changeId, false)}
+              >
+                Rechazar
+              </button>
+            </p>
+          </div>
+        ))}
         <form
           onSubmit={(e) => {
             e.preventDefault();

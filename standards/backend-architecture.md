@@ -2,6 +2,8 @@
 
 Estado: borrador basado en preferencias declaradas. Debe validarse contra un proyecto real.
 
+En el piloto NANI, los Route Handlers de Next.js ya cumplen el papel de transporte/controlador. No añadir controladores, repositorios o interfaces que solo delegan. Las invariantes de propietario, alcance, revisión y exposición viven en servicios comprobables, no solo en skills.
+
 ## Flujo de responsabilidades
 
 ```text
@@ -50,4 +52,3 @@ route -> controller -> service/use case -> repository or adapter
 - Convenciones de nombres.
 - Framework HTTP, ORM y librería de validación preferidos.
 - Estrategia de pruebas y umbrales de cobertura.
-

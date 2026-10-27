@@ -34,6 +34,13 @@ beforeAll(async () => {
         default: {},
         connected: ["opencode"],
       });
+    if (u.pathname === "/experimental/tool/ids")
+      return json([
+        "read",
+        "nani-memory_search",
+        "nani-memory_get",
+        "nani-memory_propose",
+      ]);
     if (u.pathname === "/session" && req.method === "POST")
       return json({ id: "runtime-one" });
     if (u.pathname === "/session/runtime-one/message" && req.method === "POST")

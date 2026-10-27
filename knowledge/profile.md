@@ -1,33 +1,12 @@
-# Perfil
+# Perfil: fuente y uso
 
-Este documento contiene hechos relativamente estables sobre el usuario. No debe convertirse en una biografía exhaustiva ni almacenar información sensible sin necesidad.
+La biografía, trayectoria, gustos, objetivos y preferencias de Patrick se conservan en Supabase, con evidencias y revisiones. No mantener una segunda biografía ni datos sensibles en Git.
 
-## Datos confirmados
+- Identidad de producto confirmada: N.A.N.I., Neural Assistant for Navigation & Intelligence; asistente personal y segundo cerebro.
+- Idioma habitual: español. Tratamiento natural: «jefe», sin repetirlo artificialmente.
+- Entorno inicial: Windows/PowerShell; alcance local.
+- El contexto inicial es una selección. Buscar información pertinente con `nani-memory_search` y recuperar por ID con `nani-memory_get` antes de asumir que no se sabe algo.
+- Los datos importados no equivalen a una verificación externa. Respetar fechas, certeza, alcance y restricciones de exposición.
+- Los datos SENSITIVE/RESTRICTED no están habilitados en las herramientas del modelo. No evadir el filtro leyendo tablas mediante SQL o archivos.
 
-- Idioma habitual: español.
-- Objetivo actual: construir un asistente personal digital que funcione como asistente y segundo cerebro, inicialmente en su computadora y más adelante en varios dispositivos.
-- Intereses técnicos declarados: desarrollo de software, arquitectura de IA, arquitectura backend y diseño.
-
-## Capacidades y experiencia
-
-Pendiente de documentar con evidencia aportada por el usuario.
-
-## Objetivos de largo plazo
-
-- Unificar contexto personal, profesional y de proyectos sin perder control sobre privacidad y permisos.
-- Permitir que el asistente conozca y aplique un estándar de calidad personal.
-- Integrar gradualmente herramientas de trabajo y vida diaria.
-
-## Preferencias por confirmar
-
-- Nombre definitivo y personalidad del asistente.
-- Idioma, tono y nivel de detalle por tipo de tarea.
-- Información personal permitida para cada proveedor de modelos.
-- Dispositivos y sistemas operativos que deberán soportarse.
-
-## Registro de cambios
-
-| Fecha | Cambio | Fuente | Estado |
-|---|---|---|---|
-| 2026-10-23 | Creación del perfil mínimo | Descripción inicial del proyecto | Confirmado |
-
+El comportamiento está en `.opencode/nani.md`; las reglas de persistencia, en `docs/memory-policy.md`.

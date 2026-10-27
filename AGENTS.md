@@ -19,6 +19,11 @@ Una regla específica del proyecto puede reemplazar una preferencia general, per
 
 ## Recuperación de contexto
 
+- El comportamiento de producto está en `.opencode/nani.md`. La aplicación lo carga siempre junto con `nani-context`; no depender de que una skill se active para aplicar identidad, honestidad o recuperación de contexto.
+- Skills: `.opencode/skills/nani-context/`, `nani-learning/` y `nani-execution/`. Usar herramientas nativas `nani-memory_search/get/propose`; requieren una sesión activa de la aplicación.
+- Supabase es la fuente de biografía y preferencias. `knowledge/profile.md` describe cómo usarla; no copiar los datos personales completos al repositorio.
+- Si una decisión técnica solo aplica a NANI o a un ejemplo, no promoverla a regla universal. Ver `docs/behavior.md` y `docs/pilot.md`.
+
 - Consultá solo los archivos pertinentes a la tarea; no cargués todo el perfil por defecto.
 - Para arquitectura de IA, consultá `standards/ai-architecture.md`.
 - Para backend, consultá `standards/backend-architecture.md`.
@@ -61,4 +66,3 @@ Una regla específica del proyecto puede reemplazar una preferencia general, per
 - Explicá decisiones relevantes y sus tradeoffs.
 - Al revisar, priorizá por impacto y proponé una corrección concreta.
 - Al terminar, indicá verificaciones ejecutadas, decisiones nuevas y cualquier supuesto pendiente de confirmar.
-

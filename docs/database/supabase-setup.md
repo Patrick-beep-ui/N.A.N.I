@@ -3,7 +3,9 @@
 Proyecto: NANI (`prinrtzjhsqmtdskpekl`). Región: us-east-2. PostgreSQL 17.
 Configuración aplicada el 23 de octubre de 2026 mediante la integración autorizada por el propietario.
 
-## Estado real
+## Estado inicial aplicado el 23 de octubre
+
+Esta sección documenta la configuración inicial, no el número actual de recuerdos. Las importaciones y revisiones posteriores viven en la base y no se exportan a Git. El piloto reutiliza estas tablas sin migración.
 
 La DB estaba vacía. Se creó el esquema de `prisma/schema.prisma` sin modificar el código de la aplicación:
 `profiles`, `personal_memories`, `memory_revisions`, `memory_evidence`, `memory_changes`, `devices` y `projects`.
@@ -16,7 +18,7 @@ También se creó un perfil local inicial, la entrada del proyecto N.A.N.I. y tr
 
 ## Conexión local
 
-1. Copiar `.env.example` a `.env`.
+1. Copiar `.env.example` a `.env` solo si todavía no existe; conservar la configuración propia.
 2. En el dashboard de Supabase, abrir **Connect** y copiar la conexión apropiada:
    - `DATABASE_URL`: conexión de PostgreSQL utilizada por el adaptador Prisma.
    - `DIRECT_URL`: conexión directa para Prisma CLI; si la red no admite IPv6, usar la conexión **Session pooler** exacta del dashboard.
@@ -27,7 +29,7 @@ También se creó un perfil local inicial, la entrada del proyecto N.A.N.I. y tr
 select user_id, display_name from public.profiles;
 ```
 
-4. Configurar `NANI_OWNER_USER_ID` con ese UUID.
+4. Configurar `NANI_OWNER_USER_ID` con ese UUID solo si hay varios perfiles; con uno es opcional.
 5. Ejecutar `pnpm install`, `pnpm prisma:generate` y `pnpm dev`.
 6. Abrir la interfaz y comprobar el bootstrap de perfil y memorias.
 
@@ -41,8 +43,8 @@ La lectura SQL equivalente al bootstrap está verificada. La conexión desde la 
 - Los roles del navegador no pueden insertar, modificar ni borrar recuerdos.
 - Prisma accede desde el servidor. Si usa `postgres`, ese rol omite RLS: se mantienen los filtros de propietario en el repositorio y la aplicación debe permanecer local.
 - No hay usuarios en Supabase Auth ni se creó un usuario ficticio editando `auth.users`. El perfil es una identidad local para el modo actual `NANI_OWNER_USER_ID`, no un login ni una sesión autenticada.
-- Si se incorpora login, vincular/migrar explícitamente esta identidad al UUID real de Auth. La configuración inicial de `docs/setup.md` que exige ya un usuario Auth no describe este arranque local.
-- El endpoint actual de sesiones usa el propietario de entorno; no constituye una implementación de login.
+- Si se incorpora login, vincular/migrar explícitamente esta identidad al UUID real de Auth. `docs/setup.md` describe el arranque local sin login.
+- El endpoint de sesiones usa el propietario de entorno o resuelve el único perfil; no constituye una implementación de login.
 
 ## Integridad adicional
 

@@ -71,6 +71,7 @@ export class EngramClient {
     message: string,
     result: string,
     operationId: string,
+    tools: { name: string; status: string }[] = [],
   ) {
     // No automatic retries after a possibly committed write.
     await this.request("/observations", {
@@ -79,7 +80,7 @@ export class EngramClient {
       scope: "project",
       type: "discovery",
       title: "Interacción mediante N.A.N.I.",
-      content: `Solicitud: ${redactSecrets(message).slice(0, 1500)}\nResultado reportado por OpenCode: ${redactSecrets(result).slice(0, 3500)}`,
+      content: `Solicitud: ${redactSecrets(message).slice(0, 1500)}\nResultado reportado por OpenCode (no verificación independiente): ${redactSecrets(result).slice(0, 3500)}\nEstados de herramientas: ${JSON.stringify(tools.slice(0, 30))}\n${tools.length ? "Los estados no prueban por sí solos todos los efectos afirmados." : "Sin herramientas reportadas en este turno; no considerar acciones verificadas."}`,
       operation_id: operationId,
       capture_prompt: false,
     });
