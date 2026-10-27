@@ -23,7 +23,9 @@ export class OpenCodeRuntime {
     private directory: string,
     private model: string,
   ) {
-    this.client = opencodeClient(directory);
+    // Keep NANI's native tools/skills discoverable even when the task targets another folder.
+    // The target working directory is supplied explicitly in the system context.
+    this.client = opencodeClient(process.cwd());
   }
   async create(): Promise<string> {
     const [providerID, modelID] = this.model.split("/") as [string, string];
@@ -38,6 +40,20 @@ export class OpenCodeRuntime {
           "model_unavailable",
           `El modelo ${this.model} no está disponible en OpenCode. No se seleccionará otro automáticamente.`,
         );
+      const available = await this.client.tool.ids(
+        {},
+        { throwOnError: true, signal: AbortSignal.timeout(15000) },
+      );
+      const required = [
+        "nani-memory_search",
+        "nani-memory_get",
+        "nani-memory_propose",
+      ];
+      if (!required.every((name) => available.data.includes(name)))
+        throw new AppError(
+          "memory_tools_unavailable",
+          "OpenCode no cargó las herramientas de NANI. Instalá dependencias y reiniciá opencode serve desde la raíz de este repositorio.",
+        );
       const result = await this.client.session.create(
         {
           title: "N.A.N.I.",
@@ -46,6 +62,15 @@ export class OpenCodeRuntime {
             { permission: "read", pattern: "*", action: "allow" },
             { permission: "glob", pattern: "*", action: "allow" },
             { permission: "grep", pattern: "*", action: "allow" },
+            { permission: "skill", pattern: "nani-*", action: "allow" },
+            { permission: "nani-memory_search", pattern: "*", action: "allow" },
+            { permission: "nani-memory_get", pattern: "*", action: "allow" },
+            {
+              permission: "nani-memory_propose",
+              pattern: "*",
+              action: "allow",
+            },
+            { permission: "supabase*", pattern: "*", action: "deny" },
             { permission: "read", pattern: "*.env*", action: "deny" },
             { permission: "read", pattern: "**/.env*", action: "deny" },
             { permission: "question", pattern: "*", action: "deny" },

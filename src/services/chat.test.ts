@@ -14,13 +14,22 @@ const deps = vi.hoisted(() => ({
   },
   register: vi.fn(),
   search: vi.fn(),
+  searchPersonal: vi.fn(),
+  loadContext: vi.fn(),
   record: vi.fn(),
   create: vi.fn(),
   execute: vi.fn(),
   cancel: vi.fn(),
 }));
 vi.mock("./sessions", () => ({ getSession: () => deps.session }));
-vi.mock("./memory", () => ({ modelContext: () => "approved context" }));
+vi.mock("./memory", () => ({
+  modelContext: () => "approved context",
+  searchMemories: deps.searchPersonal,
+  loadContext: deps.loadContext,
+}));
+vi.mock("./behavior", () => ({
+  behaviorInstructions: async () => "Always consult memory; be natural.",
+}));
 vi.mock("@/integrations/engram", () => ({
   engramClient: () => ({
     register: deps.register,
@@ -48,6 +57,10 @@ beforeEach(() => {
   deps.search.mockResolvedValue("scoped history");
   deps.record.mockResolvedValue(undefined);
   deps.create.mockResolvedValue("runtime-real-id");
+  deps.loadContext.mockResolvedValue({});
+  deps.searchPersonal.mockResolvedValue([
+    { id: "personal-one", content: "relevant preference" },
+  ]);
   deps.execute.mockResolvedValue({ answer: "done", tools: [] });
 });
 describe("single assistant workflow", () => {
@@ -65,6 +78,9 @@ describe("single assistant workflow", () => {
       "project-a",
     ]);
     expect(deps.session.busy).toBe(false);
+    expect(deps.searchPersonal).toHaveBeenCalled();
+    expect(deps.execute.mock.calls[0]?.[2]).toContain("relevant preference");
+    expect(deps.execute.mock.calls[0]?.[2]).toContain("nani-memory_search");
   });
   it("does not hide an execution result when the memory write fails", async () => {
     deps.record.mockRejectedValue(new Error("offline"));
@@ -92,5 +108,18 @@ describe("single assistant workflow", () => {
     await cancelMessage("local");
     expect(deps.session.controller.signal.aborted).toBe(true);
     expect(deps.cancel).toHaveBeenCalledWith("runtime-real-id");
+  });
+  it("warns about failed live personal retrieval without fabricating memories", async () => {
+    deps.searchPersonal.mockRejectedValue(new Error("offline"));
+    const result = await sendMessage(
+      "local",
+      "task",
+      () => {},
+      new AbortController().signal,
+    );
+    expect(result.warnings.join(" ")).toContain("Supabase falló");
+    expect(deps.execute.mock.calls[0]?.[2]).not.toContain(
+      "relevant preference",
+    );
   });
 });

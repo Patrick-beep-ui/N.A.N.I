@@ -1,25 +1,14 @@
-# Arquitectura actual
+# Arquitectura del piloto
 
-N.A.N.I. es una sola aplicación Next.js en la raíz del repositorio. No hay apps independientes, paquetes compartidos, interfaces de adaptadores sin implementación ni worker vacío.
+Una aplicación Next.js + TypeScript + Prisma. No hay workspaces funcionales, worker separado ni servidor de memoria adicional.
 
-## Flujo implementado
+1. La sesión resuelve al único propietario (o UUID configurado) y conserva proyecto, dispositivo y modelo en servidor.
+2. Cada turno carga instrucciones permanentes y `nani-context`, refresca el bootstrap y busca contexto pertinente en Supabase; consulta también Engram por proyecto.
+3. OpenCode se conecta a la raíz de NANI, comprueba que existen las herramientas de memoria y ejecuta con el modelo explícito. La carpeta de destino se indica en el prompt; no es un sandbox.
+4. Las herramientas nativas llaman a una ruta local de Next con el ID de runtime aportado por OpenCode. Solo un turno activo puede usarlas; no aceptan propietario, modelo o proyecto arbitrarios.
+5. El aprendizaje crea cambios PENDING. La UI confirma/rechaza; al confirmar, Prisma aplica revisiones/evidencia/historial y actualiza context_revision en transacción, con control de conflictos.
+6. La UI conserva permisos y cancelación. Engram registra respuesta reportada y estados de herramientas; no certifica efectos por sí solo.
 
-1. La interfaz crea una sesión local y selecciona el proyecto.
-2. `services/memory.ts` identifica al propietario, filtra por proyecto/dispositivo y vigencia, y recupera contexto real de PostgreSQL/Supabase mediante Prisma.
-3. Cada mensaje consulta contexto operativo de Engram con el proyecto explícito.
-4. `integrations/opencode.ts` crea/reutiliza la sesión del runtime y solicita el modelo configurado. Las herramientas pertenecen al ciclo agéntico de OpenCode.
-5. La UI consulta permisos de esa sesión y permite aprobar una vez, denegar o cancelar.
-6. El resultado reportado por el runtime se registra en Engram; el chat informa por separado si no se confirmó la escritura.
+`services/chat.ts` coordina; `memory.ts` recupera; `learning.ts` protege cambios; `behavior.ts` lee instrucciones fijas. Los Route Handlers traducen HTTP. No se crean abstracciones que solo delegan.
 
-`services/chat.ts` coordina ese recorrido. Los SDK y protocolos se mantienen en `integrations/`; Prisma y la configuración en `lib/`. Los Route Handlers validan solicitudes y traducen resultados HTTP. No se agrega una capa que solo delega otra llamada.
-
-## Límites
-
-- Sesiones locales en memoria, sin colas ni workers de fondo.
-- Progreso por etapas y respuesta final, sin streaming de tokens.
-- Solo acceso local; no hay login ni acceso móvil.
-- La DB conserva el esquema y contenido anteriores.
-- El aprendizaje personal automático en Supabase todavía no está conectado.
-- El tiempo y permisos de las herramientas los aplica OpenCode; no se promete sandbox de la máquina.
-
-El roadmap es una evolución a partir de este recorrido funcional, no un requisito para crear infraestructura por adelantado.
+Ver `docs/behavior.md`, `docs/memory-policy.md` y `docs/pilot.md`. No se altera el esquema ni se importan datos personales a Git. Las pruebas usan dobles de persistencia y servicios HTTP locales; el piloto real es una verificación separada.

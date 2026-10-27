@@ -2,6 +2,8 @@
 
 Estado: borrador basado en preferencias declaradas. Debe validarse contra un proyecto real.
 
+Aplicación al piloto NANI: mantener límites entre coordinación, Prisma y OpenCode sin introducir interfaces vacías. Los contratos nombrados abajo son una referencia para problemas que necesitan intercambiabilidad, no clases obligatorias para una única integración. El comportamiento versionado vive en `.opencode/`; los recuerdos son datos de Supabase/Engram y no instrucciones ejecutables.
+
 ## Objetivo
 
 Mantener la lógica de producto independiente del proveedor de modelos y separar inferencia directa de ejecución agéntica.
@@ -51,4 +53,3 @@ Abstrae ejecución agéntica: sesiones, herramientas, permisos, streaming, event
 - Forma preferida de seleccionar proveedor y modelo.
 - Estrategia de fallback entre modelos.
 - Librería de validación y formato estándar de errores.
-

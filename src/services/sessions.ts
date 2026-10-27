@@ -2,13 +2,16 @@ import { randomUUID } from "node:crypto";
 import { getConfig } from "@/lib/config";
 import type { Context, SessionView } from "@/lib/contracts";
 import { AppError } from "@/lib/errors";
-import { loadContext } from "./memory";
+import { loadContext, resolveOwner } from "./memory";
 export type LocalSession = {
   id: string;
   project: string;
   context: Context;
   workingDirectory: string;
   model: string;
+  ownerId: string;
+  deviceId: string;
+  currentMessage?: string;
   runtimeId?: string;
   engramId?: string;
   busy: boolean;
@@ -29,9 +32,11 @@ export async function startSession(project: string): Promise<SessionView> {
       429,
     );
   const c = getConfig();
+  let ownerId: string;
   let context: Context;
   try {
-    context = await loadContext(project, c.deviceId, c.ownerId);
+    ownerId = await resolveOwner(c.ownerId);
+    context = await loadContext(project, c.deviceId, ownerId);
   } catch (error) {
     if (error instanceof AppError) throw error;
     throw new AppError(
@@ -47,6 +52,8 @@ export async function startSession(project: string): Promise<SessionView> {
     context,
     workingDirectory: c.workingDirectory,
     model: c.model,
+    ownerId,
+    deviceId: c.deviceId,
     busy: false,
     lastUsed: Date.now(),
   };
@@ -73,4 +80,18 @@ export function getSession(id: string): LocalSession {
   }
   s.lastUsed = Date.now();
   return s;
+}
+
+/** Native tool context supplies the runtime ID, never the model's arguments. */
+export function getRuntimeSession(runtimeId: string): LocalSession {
+  const session = [...sessions.values()].find(
+    (s) => s.runtimeId === runtimeId && s.busy && !s.controller?.signal.aborted,
+  );
+  if (!session)
+    throw new AppError(
+      "session_expired",
+      "La herramienta requiere un turno activo desde N.A.N.I.",
+      403,
+    );
+  return session;
 }

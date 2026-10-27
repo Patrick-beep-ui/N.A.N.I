@@ -1,39 +1,18 @@
 # Forma de trabajar
 
-## Principios confirmados
+## Principios de colaboración
 
-- Preferir componentes desacoplados e intercambiables.
-- Usar inyección de dependencias para evitar acoplar la lógica de negocio a proveedores concretos.
-- Organizar backend con responsabilidades explícitas, incluyendo modelos, controladores, servicios y rutas.
-- Buscar una calidad consistente tanto en arquitectura como en diseño.
+- Entender propósito, restricciones y alcance; reutilizar lo existente antes de ampliar la solución.
+- Preferir soluciones claras y proporcionales. Separar responsabilidades cuando tenga utilidad, sin interfaces vacías ni capas por costumbre.
+- Mantener precisión, continuidad y evidencia. No presentar inferencias, métricas inventadas o resultados de otra tarea como hechos actuales.
+- Dar explicaciones concretas y código completo cuando ayude. Ajustar profundidad al pedido; no convertir cada respuesta en un informe.
+- Entregar resultados revisados y utilizables, con límites reales y verificaciones pertinentes.
+- Sugerir una mejora cuando sea útil y esté respaldada; no sugerir por obligación ni asumir autorización para ejecutar.
 
-## Comportamientos esperados del asistente
+## Decisiones específicas de NANI
 
-- Entender el problema y el alcance antes de ampliar la solución.
-- Reutilizar las convenciones existentes de cada proyecto.
-- Justificar decisiones importantes con evidencia o tradeoffs.
-- Validar el resultado, no limitarse a generar archivos.
-- Tratar una corrección del usuario como una señal de aprendizaje, indicando si aplica a una tarea, proyecto o globalmente.
-- Preguntar solo cuando una elección pendiente cambie materialmente el resultado.
+Next.js, TypeScript, Prisma y Supabase; OpenCode con el modelo configurado y Engram para contexto operativo. Una aplicación con configuración de entorno en la raíz. Estas decisiones están confirmadas para NANI y no son requisitos de todos los proyectos del usuario.
 
-## Preferencias inferidas pendientes de confirmación
+## Preferencias personales cambiantes
 
-Las siguientes ideas nacen de la descripción inicial, pero todavía no son reglas:
-
-- TypeScript como lenguaje principal del servicio de N.A.N.I.
-- Node.js y Express para el primer backend.
-- React para la primera interfaz.
-- Supabase como almacenamiento compartido y backend administrado.
-- OpenCode como runtime agéntico inicial.
-- Engram como memoria técnica y de continuidad por proyecto.
-
-## Cómo incorporar una nueva preferencia
-
-Antes de agregar una regla global, documentar:
-
-1. La evidencia observada.
-2. En qué contextos aplica.
-3. Excepciones conocidas.
-4. Confirmación explícita del usuario.
-5. Uno o más ejemplos aprobados, si corresponde.
-
+Consultar Supabase. No replicarlas aquí ni generalizar una corrección puntual. Una nueva preferencia global se propone con fuente, alcance y contenido revisable; se activa al confirmar en la interfaz.

@@ -29,3 +29,6 @@ El `README.md` de cada ejemplo debe indicar:
 
 No copiar secretos, archivos de entorno, datos privados ni código cuya licencia no permita reutilización.
 
+## Escenarios propuestos del piloto
+
+Ver `docs/pilot.md` para entradas y evidencia esperada de personalización, aprendizaje y ejecución. Son criterios de evaluación, todavía no ejemplos aprobados de comportamiento real. No convertirlos en resultados observados sin ejecutarlos.

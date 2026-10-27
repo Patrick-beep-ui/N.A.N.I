@@ -4,7 +4,7 @@
     "supabase-personal": {
       "type": "remote",
       "url": "https://mcp.supabase.com/mcp?project_ref=prinrtzjhsqmtdskpekl",
-      "enabled": true
+      "enabled": false
     }
   }
 }

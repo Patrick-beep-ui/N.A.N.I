@@ -43,7 +43,7 @@ Existe un solo `package.json`, una sola instalación y un solo proceso de N.A.N.
 - Consulta de Engram antes de cada turno y registro del resultado reportado por OpenCode.
 - Estado diferenciado cuando una tarea termina pero Engram no confirma el registro.
 
-El aprendizaje personal automático que escribe nuevos criterios en Supabase sigue pendiente. No se afirma que una conversación haya modificado el segundo cerebro. Las sesiones de la UI viven en memoria: un reinicio requiere iniciarlas de nuevo; el historial de OpenCode y Engram sigue en sus servicios.
+El piloto busca contexto personal en cada turno y permite profundizar con herramientas nativas. El aprendizaje genera propuestas revisables: confirmar activa una revisión en Supabase, rechazar no crea un recuerdo. No se confunde propuesta con hecho confirmado. Las sesiones de la UI viven en memoria: un reinicio requiere iniciarlas de nuevo; el historial de OpenCode y Engram sigue en sus servicios.
 
 ## Verificación
 
@@ -54,3 +54,9 @@ pnpm start
 ```
 
 `dev`, `build` y `check` generan el cliente Prisma automáticamente. Los servidores dev y producción escuchan en loopback. Ver [docs/setup.md](docs/setup.md) para configuración y límites de esta entrega.
+
+## Comportamiento y piloto
+
+Las instrucciones permanentes están en `.opencode/nani.md`; las skills de contexto, aprendizaje y ejecución, en `.opencode/skills/`. Las herramientas consultan Supabase por Prisma sin entregar SQL o credenciales al modelo. El MCP administrativo queda deshabilitado por defecto.
+
+Reiniciar OpenCode desde esta raíz tras instalar los cambios. La carpeta operativa indica el destino de tareas; el runtime mantiene la raíz de NANI para cargar sus herramientas. Ver [comportamiento](docs/behavior.md), [política de memoria](docs/memory-policy.md) y [pruebas del piloto](docs/pilot.md).
